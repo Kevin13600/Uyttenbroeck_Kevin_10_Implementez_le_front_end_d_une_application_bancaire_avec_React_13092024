@@ -1,4 +1,6 @@
-import React from 'react';
+import React, { useEffect } from 'react';
+import { useSelector, useDispatch } from 'react-redux';
+import { getUserProfile } from '../features/auth/authSlice';
 import styled from 'styled-components';
 import AccountList from '../components/AccountList';
 
@@ -28,17 +30,27 @@ const EditButton = styled.button`
   margin-top: 1rem;
 `;
 
-function Profile({ userName }) {
-  const handleEditName = () => {
-    console.log("Edit name clicked");
-    // Implémentation future de l'édition du nom
-  };
+function Profile() {
+  const dispatch = useDispatch();
+  const { user, isLoading, error, token } = useSelector((state) => state.auth);
+
+  useEffect(() => {
+    if (token && !user) {
+      dispatch(getUserProfile());
+    }
+  }, [dispatch, user, token]);
+
+  console.log("Profile component - Auth state:", { user, isLoading, error, token });
+
+  if (isLoading) return <div>Loading...</div>;
+  if (error) return <div>Error: {error}</div>;
+  if (!user) return <div>No user data available. Please log in.</div>;
 
   return (
     <MainContainer className="main bg-dark">
       <WelcomeSection>
-        <Title>Welcome back<br />{userName}!</Title>
-        <EditButton onClick={handleEditName}>Edit Name</EditButton>
+        <Title>Welcome back<br />{user.firstName} {user.lastName}!</Title>
+        <EditButton>Edit Name</EditButton>
       </WelcomeSection>
       <AccountList />
     </MainContainer>

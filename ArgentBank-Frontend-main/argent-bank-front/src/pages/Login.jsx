@@ -1,14 +1,12 @@
-import React, { useState } from 'react';
-import { useNavigate } from 'react-router-dom';
+import React from 'react';
 import styled from 'styled-components';
 import SignInForm from '../components/SignInForm';
-import { useDispatch, useSelector } from 'react-redux';
-import { login } from '../features/auth/authSlice';
 
-const MainContainer = styled.main`
+const LoginContainer = styled.div`
   background-color: #12002b;
-  flex: 1; 
+  flex: 1;
   display: flex;
+  justify-content: center;
   align-items: center;
 `;
 
@@ -24,34 +22,12 @@ const SignInContent = styled.section`
 `;
 
 function Login() {
-  const [email, setEmail] = useState('');
-  const [password, setPassword] = useState('');
-  const dispatch = useDispatch();
-  const navigate = useNavigate();
-  const { isLoading, error } = useSelector((state) => state.auth);
-
-  const handleSubmit = async (e) => {
-    e.preventDefault();
-    const result = await dispatch(login({ email, password }));
-    if (login.fulfilled.match(result)) {
-      navigate('/profile');
-    }
-  };
-
   return (
-    <MainContainer className="main bg-dark">
-      <SignInContent className="sign-in-content">
-        <SignInForm 
-          onSubmit={handleSubmit}
-          email={email}
-          setEmail={setEmail}
-          password={password}
-          setPassword={setPassword}
-          isLoading={isLoading}
-          error={error}
-        />
+    <LoginContainer>
+      <SignInContent>
+        <SignInForm />
       </SignInContent>
-    </MainContainer>
+    </LoginContainer>
   );
 }
 

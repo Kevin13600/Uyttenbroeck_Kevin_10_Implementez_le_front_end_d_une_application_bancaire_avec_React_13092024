@@ -1,5 +1,7 @@
 import React from 'react';
-import { Link, useNavigate } from 'react-router-dom';
+import { Link } from 'react-router-dom';
+import { useSelector, useDispatch } from 'react-redux';
+import { logout } from '../features/auth/authSlice';
 import styled from 'styled-components';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faUserCircle, faSignOut } from '@fortawesome/free-solid-svg-icons';
@@ -56,13 +58,12 @@ const Icon = styled(FontAwesomeIcon)`
   margin-right: 0.25rem;
 `;
 
-function Header({ isLoggedIn, userName }) {
-  const navigate = useNavigate();
+function Header() {
+  const { user, token } = useSelector((state) => state.auth);
+  const dispatch = useDispatch();
 
-  const handleSignOut = () => {
-    // Logique de déconnexion à implémenter
-    console.log('User signed out');
-    navigate('/');
+  const handleLogout = () => {
+    dispatch(logout());
   };
 
   return (
@@ -72,13 +73,13 @@ function Header({ isLoggedIn, userName }) {
         <h1 className="sr-only">Argent Bank</h1>
       </Logo>
       <NavItems>
-        {isLoggedIn ? (
+        {token ? (
           <>
             <NavItem to="/profile" className="main-nav-item">
               <Icon icon={faUserCircle} />
-              {userName}
+              {user?.firstName}
             </NavItem>
-            <SignOutButton onClick={handleSignOut} className="main-nav-item">
+            <SignOutButton onClick={handleLogout} className="main-nav-item">
               <Icon icon={faSignOut} />
               Sign Out
             </SignOutButton>
