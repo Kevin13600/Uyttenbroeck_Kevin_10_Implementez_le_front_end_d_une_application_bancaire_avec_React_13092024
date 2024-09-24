@@ -1,8 +1,10 @@
-import React, { useEffect } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useSelector, useDispatch } from 'react-redux';
-import { getUserProfile } from '../features/auth/authSlice';
+import { getUserProfile, updateUserProfile } from '../features/auth/authSlice';
 import styled from 'styled-components';
 import AccountList from '../components/AccountList';
+import EditForm from '../components/EditForm';
+import WelcomeSection from '../components/WelcomeSection';  // Import du nouveau composant
 
 const MainContainer = styled.main`
   flex: 1;
@@ -11,36 +13,37 @@ const MainContainer = styled.main`
   line-height: 1.2;
 `;
 
-const WelcomeSection = styled.div`
-  color: #fff;
-  margin-bottom: 2rem;
-  text-align: center;
-`;
-
-const Title = styled.h1`
-  margin: 0;
-`;
-
-const EditButton = styled.button`
-  border-color: #00bc77;
-  background-color: #00bc77;
-  color: #fff;
-  font-weight: bold;
-  padding: 10px;
-  margin-top: 1rem;
-`;
-
 function Profile() {
   const dispatch = useDispatch();
   const { user, isLoading, error, token } = useSelector((state) => state.auth);
+  const [isEditing, setIsEditing] = useState(false);
+  const [editedUserName, setEditedUserName] = useState('');
 
   useEffect(() => {
     if (token && !user) {
       dispatch(getUserProfile());
     }
+    if (user) {
+      setEditedUserName(user.userName || '');
+    }
   }, [dispatch, user, token]);
 
-  console.log("Profile component - Auth state:", { user, isLoading, error, token });
+  const handleEditClick = () => {
+    setIsEditing(true);
+  };
+
+  const handleCancelEdit = () => {
+    setIsEditing(false);
+    setEditedUserName(user.userName || '');
+  };
+
+  const handleSaveEdit = (e) => {
+    e.preventDefault();
+    dispatch(updateUserProfile(editedUserName)).then(() => {
+      dispatch(getUserProfile()); // Re-fetch profile after update
+    });
+    setIsEditing(false);
+  };
 
   if (isLoading) return <div>Loading...</div>;
   if (error) return <div>Error: {error}</div>;
@@ -48,10 +51,20 @@ function Profile() {
 
   return (
     <MainContainer className="main bg-dark">
-      <WelcomeSection>
-        <Title>Welcome back<br />{user.firstName} {user.lastName}!</Title>
-        <EditButton>Edit Name</EditButton>
-      </WelcomeSection>
+      <WelcomeSection
+        user={user}
+        isEditing={isEditing}
+        handleEditClick={handleEditClick}
+      />
+      {isEditing && (
+        <EditForm
+          editedUserName={editedUserName}
+          setEditedUserName={setEditedUserName}
+          user={user}
+          handleSaveEdit={handleSaveEdit}
+          handleCancelEdit={handleCancelEdit}
+        />
+      )}
       <AccountList />
     </MainContainer>
   );

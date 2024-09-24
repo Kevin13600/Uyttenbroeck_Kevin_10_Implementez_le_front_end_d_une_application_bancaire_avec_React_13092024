@@ -16,7 +16,7 @@ export const login = createAsyncThunk(
       console.log('Sending login request with:', credentials);
       const response = await axios.post(`${API_URL}/user/login`, credentials);
       console.log('Login response:', response.data);
-      // Lors de la connexion, on stockez le jeton renvoyé par le backend dans le localStorage
+      // Lors de la connexion, on stocke le jeton renvoyé par le backend dans le localStorage
       if (response.data && response.data.body && response.data.body.token) {
         localStorage.setItem('token', response.data.body.token);
         return response.data.body;
@@ -31,36 +31,39 @@ export const login = createAsyncThunk(
 );
 
 export const getUserProfile = createAsyncThunk(
-    'auth/getUserProfile',
-    async (_, { rejectWithValue }) => {
-      try {
-        const token = localStorage.getItem('token');
-        console.log('Token used for profile request:', token);
-  
-        if (!token) {
-          throw new Error('No token found');
-        }
-  
-        console.log('Sending GET request for profile');
-        const response = await axios.get(`${API_URL}/user/profile`, {
+  'auth/getUserProfile',
+  async (_, { rejectWithValue }) => {
+    try {
+      const token = localStorage.getItem('token');
+      console.log('Token used for profile request:', token);
+
+      if (!token) {
+        throw new Error('No token found');
+      }
+
+      console.log('Sending POST request for profile');
+      const response = await axios.post(`${API_URL}/user/profile`, 
+        { token }, // Envoi du token dans le corps de la requête
+        {
           headers: {
             Authorization: `Bearer ${token}`,
           },
-        });
-  
-        console.log('Profile response:', response.data);
-  
-        if (response.data && response.data.body) {
-          return response.data.body;
-        } else {
-          return rejectWithValue('Invalid response structure from server');
         }
-      } catch (error) {
-        console.error('Get user profile error:', error);
-        return rejectWithValue(error.response?.data || 'An error occurred while fetching the profile');
+      );
+
+      console.log('Profile response:', response.data);
+
+      if (response.data && response.data.body) {
+        return response.data.body;
+      } else {
+        return rejectWithValue('Invalid response structure from server');
       }
+    } catch (error) {
+      console.error('Get user profile error:', error);
+      return rejectWithValue(error.response?.data || 'An error occurred while fetching the profile');
     }
-  );
+  }
+);
   
 
 /* Le thunk checkAuth vérifie si un jeton est présent dans le localStorage au moment où 
@@ -81,6 +84,21 @@ export const checkAuth = createAsyncThunk(
       }
     }
     return rejectWithValue('No token found');
+  }
+);
+
+export const updateUserProfile = createAsyncThunk(
+  'auth/updateUserProfile',
+  async (userName, { getState, rejectWithValue }) => {
+    try {
+      const { token } = getState().auth;
+      const response = await axios.put(`${API_URL}/user/profile`, { userName }, {
+        headers: { Authorization: `Bearer ${token}` },
+      });
+      return response.data.body;
+    } catch (error) {
+      return rejectWithValue(error.response?.data || 'Failed to update profile');
+    }
   }
 );
 
@@ -153,9 +171,21 @@ const authSlice = createSlice({
         state.isLoading = false;
         state.token = null;
         state.user = null;
+      })
+      .addCase(updateUserProfile.pending, (state) => {
+        state.isLoading = true;
+        state.error = null;
+      })
+      .addCase(updateUserProfile.fulfilled, (state, action) => {
+        state.isLoading = false;
+        state.user = { ...state.user, userName: action.payload.userName };
+    })
+      .addCase(updateUserProfile.rejected, (state, action) => {
+        state.isLoading = false;
+        state.error = action.payload;
       });
   },
 });
 
-export const { logout, clearError } = authSlice.actions;  
+export const { logout, clearError } = authSlice.actions;
 export default authSlice.reducer;
