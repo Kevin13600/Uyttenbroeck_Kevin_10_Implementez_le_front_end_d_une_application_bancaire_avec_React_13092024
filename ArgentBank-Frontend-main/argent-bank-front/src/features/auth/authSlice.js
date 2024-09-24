@@ -12,38 +12,43 @@ const initialState = {
 export const login = createAsyncThunk(
     'auth/login',
     async (credentials, { rejectWithValue }) => {
-      try {
-        console.log('Sending login request with:', credentials);
-        const response = await axios.post(`${API_URL}/user/login`, credentials);
-        console.log('Login response:', response.data);
-        // Suppose that the token is directly in response.data
-        if (response.data && response.data.body && response.data.body.token) {
-            localStorage.setItem('token', response.data.body.token);
-            return response.data.body;
-          } else {
-            return rejectWithValue('Invalid response structure from server');
-          }
-      } catch (error) {
-        console.error('Login error:', error.response?.data || error.message);
-        return rejectWithValue(error.response?.data || 'An error occurred during login');
+    try {
+      console.log('Sending login request with:', credentials);
+      const response = await axios.post(`${API_URL}/user/login`, credentials);
+      console.log('Login response:', response.data);
+      // Lors de la connexion, on stockez le jeton renvoyé par le backend dans le localStorage
+      if (response.data && response.data.body && response.data.body.token) {
+        localStorage.setItem('token', response.data.body.token);
+        return response.data.body;
+      } else {
+        return rejectWithValue('Invalid response structure from server');
       }
+    } catch (error) {
+      console.error('Login error:', error.response?.data || error.message);
+      return rejectWithValue(error.response?.data || 'An error occurred during login');
     }
-  );
+  }
+);
 
-  export const getUserProfile = createAsyncThunk(
+export const getUserProfile = createAsyncThunk(
     'auth/getUserProfile',
     async (_, { rejectWithValue }) => {
       try {
         const token = localStorage.getItem('token');
+        console.log('Token used for profile request:', token);
+  
         if (!token) {
           throw new Error('No token found');
         }
   
+        console.log('Sending GET request for profile');
         const response = await axios.get(`${API_URL}/user/profile`, {
           headers: {
             Authorization: `Bearer ${token}`,
           },
         });
+  
+        console.log('Profile response:', response.data);
   
         if (response.data && response.data.body) {
           return response.data.body;
@@ -58,10 +63,33 @@ export const login = createAsyncThunk(
   );
   
 
+/* Le thunk checkAuth vérifie si un jeton est présent dans le localStorage au moment où 
+l'application est initialisée */
+
+export const checkAuth = createAsyncThunk(
+    'auth/checkAuth',
+    async (_, { dispatch, rejectWithValue }) => {
+    const token = localStorage.getItem('token');
+    if (token) {
+      try {
+        await dispatch(getUserProfile());
+        return token;
+      } catch (error) {
+        //  Si la récupération du profil échoue, le jeton est supprimé du localStorage
+        localStorage.removeItem('token');
+        return rejectWithValue('Authentication failed');
+      }
+    }
+    return rejectWithValue('No token found');
+  }
+);
+
 const authSlice = createSlice({
   name: 'auth',
   initialState,
   reducers: {
+    /* La déconnexion est bien gérée avec l'action logout, 
+    qui supprime le jeton du localStorage et réinitialise l'état user et token */
     logout: (state) => {
       state.user = null;
       state.token = null;
@@ -90,13 +118,10 @@ const authSlice = createSlice({
       .addCase(login.rejected, (state, action) => {
         state.isLoading = false;
         if (typeof action.payload === 'string') {
-          // Si le payload est directement une chaîne de caractères (message d'erreur du backend)
           state.error = action.payload;
         } else if (action.payload && action.payload.message) {
-          // Si l'erreur contient un champ "message"
           state.error = action.payload.message;
         } else {
-          // Si aucune des structures d'erreur n'est présente, fallback à l'erreur de Redux
           state.error = action.error.message || 'An unknown error occurred during login';
         }
       })
@@ -116,9 +141,21 @@ const authSlice = createSlice({
         } else {
           state.error = action.error.message || 'An unknown error occurred while fetching user profile';
         }
+      })
+      .addCase(checkAuth.pending, (state) => {
+        state.isLoading = true;
+      })
+      .addCase(checkAuth.fulfilled, (state, action) => {
+        state.isLoading = false;
+        state.token = action.payload;
+      })
+      .addCase(checkAuth.rejected, (state) => {
+        state.isLoading = false;
+        state.token = null;
+        state.user = null;
       });
   },
 });
 
-export const { logout, clearError } = authSlice.actions;
+export const { logout, clearError } = authSlice.actions;  
 export default authSlice.reducer;
