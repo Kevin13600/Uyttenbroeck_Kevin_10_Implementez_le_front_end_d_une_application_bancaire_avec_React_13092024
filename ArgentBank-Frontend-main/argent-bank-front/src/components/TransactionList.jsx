@@ -17,12 +17,16 @@ const ListHeader = styled.div`
   border-bottom: 2px solid #ccc;
 `;
 
-// Les données des transactions sont simulées avec un tableau mockTransactions. Dans une application réelle, vous feriez un appel API pour récupérer ces données.
+const HeaderItem = styled.span`
+  text-align: ${props => props.align || 'left'};
+`;
 
 const mockTransactions = [
   { id: 1, date: '27/02/20', description: 'Golden Sun Bakery', amount: '$8.00', balance: '$298.00' },
   { id: 2, date: '27/02/20', description: 'Golden Sun Bakery', amount: '$8.00', balance: '$298.00' },
   { id: 3, date: '27/02/20', description: 'Golden Sun Bakery', amount: '$8.00', balance: '$298.00' },
+  { id: 4, date: '27/02/20', description: 'Golden Sun Bakery', amount: '$8.00', balance: '$298.00' },
+  { id: 5, date: '27/02/20', description: 'Golden Sun Bakery', amount: '$8.00', balance: '$298.00' },
 ];
 
 const TransactionList = () => {
@@ -31,11 +35,11 @@ const TransactionList = () => {
   return (
     <ListContainer>
       <ListHeader>
-        <span>Date</span>
-        <span>Description</span>
-        <span>Amount</span>
-        <span>Balance</span>
-        <span></span>
+        <HeaderItem>Date</HeaderItem>
+        <HeaderItem>Description</HeaderItem>
+        <HeaderItem align="center">Amount</HeaderItem>
+        <HeaderItem align="center">Balance</HeaderItem>
+        <HeaderItem></HeaderItem>
       </ListHeader>
       {transactions.map(transaction => (
         <TransactionItem key={transaction.id} transaction={transaction} />

@@ -41,15 +41,12 @@ export const getUserProfile = createAsyncThunk(
         throw new Error('No token found');
       }
 
-      console.log('Sending POST request for profile');
-      const response = await axios.post(`${API_URL}/user/profile`, 
-        { token }, // Envoi du token dans le corps de la requête
-        {
-          headers: {
-            Authorization: `Bearer ${token}`,
-          },
-        }
-      );
+      console.log('Sending GET request for profile');
+      const response = await axios.get(`${API_URL}/user/profile`, {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      });
 
       console.log('Profile response:', response.data);
 

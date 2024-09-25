@@ -1,5 +1,7 @@
 import React, { useState } from 'react';
 import styled from 'styled-components';
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
+import { faChevronDown, faChevronUp } from '@fortawesome/free-solid-svg-icons';
 
 const ItemContainer = styled.div`
   display: grid;
@@ -11,11 +13,16 @@ const ItemContainer = styled.div`
   }
 `;
 
+const ItemColumn = styled.span`
+  text-align: ${props => props.align || 'left'};
+`;
+
 const ExpandButton = styled.button`
   background: none;
   border: none;
   cursor: pointer;
   font-size: 1.2rem;
+  color: #2c3e50;
 `;
 
 const DetailsContainer = styled.div`
@@ -44,12 +51,12 @@ const TransactionItem = ({ transaction }) => {
   return (
     <>
       <ItemContainer>
-        <span>{transaction.date}</span>
-        <span>{transaction.description}</span>
-        <span>{transaction.amount}</span>
-        <span>{transaction.balance}</span>
+        <ItemColumn>{transaction.date}</ItemColumn>
+        <ItemColumn>{transaction.description}</ItemColumn>
+        <ItemColumn align="center">{transaction.amount}</ItemColumn>
+        <ItemColumn align="center">{transaction.balance}</ItemColumn>
         <ExpandButton onClick={() => setIsExpanded(!isExpanded)}>
-          {isExpanded ? '▲' : '▼'}
+          <FontAwesomeIcon icon={isExpanded ? faChevronUp : faChevronDown} />
         </ExpandButton>
       </ItemContainer>
       {isExpanded && (
@@ -66,7 +73,7 @@ const TransactionItem = ({ transaction }) => {
                 <option value="Transport">Transport</option>
                 <option value="Entertainment">Entertainment</option>
               </select>
-              ✏️
+              <FontAwesomeIcon icon="pencil-alt" />
             </EditableField>
           </DetailRow>
           <DetailRow>
@@ -78,7 +85,7 @@ const TransactionItem = ({ transaction }) => {
                 onChange={(e) => setNote(e.target.value)}
                 placeholder="Add a note"
               />
-              ✏️
+              <FontAwesomeIcon icon="pencil-alt" />
             </EditableField>
           </DetailRow>
         </DetailsContainer>

@@ -1,5 +1,6 @@
 import React from 'react';
 import styled from 'styled-components';
+import { useNavigate } from 'react-router-dom';
 
 const AccountWrapper = styled.section`
   display: flex;
@@ -67,7 +68,13 @@ const TransactionButton = styled.button`
   }
 `;
 
-function AccountSection({ title, amount, description }) {
+function AccountSection({ title, amount, description, accountId }) {
+  const navigate = useNavigate();
+
+  const handleViewTransactions = () => {
+    navigate(`/transactions/${accountId}`);
+  };
+
   return (
     <AccountWrapper className="account">
       <AccountContentWrapper className="account-content-wrapper">
@@ -76,7 +83,9 @@ function AccountSection({ title, amount, description }) {
         <AccountAmountDescription className="account-amount-description">{description}</AccountAmountDescription>
       </AccountContentWrapper>
       <CTA className="account-content-wrapper cta">
-        <TransactionButton className="transaction-button">View transactions</TransactionButton>
+        <TransactionButton className="transaction-button" onClick={handleViewTransactions}>
+          View transactions
+        </TransactionButton>
       </CTA>
     </AccountWrapper>
   );

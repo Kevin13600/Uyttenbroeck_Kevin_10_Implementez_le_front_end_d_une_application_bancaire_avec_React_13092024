@@ -1,5 +1,6 @@
 import React from 'react';
 import styled from 'styled-components';
+import { Link } from 'react-router-dom';
 
 const Card = styled.div`
   background-color: #2c3e50;
@@ -28,12 +29,13 @@ const Description = styled.p`
   margin: 0;
 `;
 
-const ViewButton = styled.button`
+const ViewButton = styled(Link)`
   background: none;
   border: none;
   color: white;
   font-size: 2rem;
   cursor: pointer;
+  text-decoration: none;
 `;
 
 function AccountCard({ accountName, accountNumber, balance, description }) {
@@ -44,7 +46,7 @@ function AccountCard({ accountName, accountNumber, balance, description }) {
         <Balance>${balance}</Balance>
         <Description>{description}</Description>
       </AccountInfo>
-      <ViewButton>›</ViewButton>
+      <ViewButton to={`/transactions/${accountNumber}`}></ViewButton>
     </Card>
   );
 }

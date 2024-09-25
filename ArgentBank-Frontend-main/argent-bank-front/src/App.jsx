@@ -7,6 +7,7 @@ import Footer from './components/Footer';
 import Home from './pages/Home';
 import Login from './pages/Login';
 import Profile from './pages/Profile';
+import TransactionsPage from './pages/TransactionsPage';
 import PrivateRoute from './components/PrivateRoute';
 import styled from 'styled-components';
 import GlobalStyle from './styles/GlobalStyle';
@@ -43,6 +44,7 @@ function App() {
             <Route path="/login" element={<Login />} />
             <Route element={<PrivateRoute />}>
               <Route path="/profile" element={<Profile />} />
+              <Route path="/transactions/:accountId" element={<TransactionsPage />} />
             </Route>
           </Routes>
         </MainContent>
