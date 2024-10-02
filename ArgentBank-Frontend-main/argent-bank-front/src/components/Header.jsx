@@ -77,7 +77,7 @@ function Header() {
           <>
             <NavItem to="/profile" className="main-nav-item">
               <Icon icon={faUserCircle} />
-              {user?.firstName}
+              {user?.userName}
             </NavItem>
             <SignOutButton onClick={handleLogout} className="main-nav-item">
               <Icon icon={faSignOut} />

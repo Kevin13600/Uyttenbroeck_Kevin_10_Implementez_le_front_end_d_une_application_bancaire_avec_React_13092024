@@ -4,7 +4,7 @@ import { API_URL } from '../../services/api';
 
 const initialState = {
   user: null,
-  token: localStorage.getItem('token'),
+  token: localStorage.getItem('token') ? localStorage.getItem('token') : null,
   isLoading: false,
   error: null,
 };
