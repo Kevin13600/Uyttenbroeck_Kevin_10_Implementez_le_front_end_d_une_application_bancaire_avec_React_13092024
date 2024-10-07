@@ -18,7 +18,7 @@ const ListHeader = styled.div`
 `;
 
 const HeaderItem = styled.span`
-  text-align: ${props => props.align || 'left'};
+  text-align: ${props => props.$align || 'left'};
 `;
 
 const mockTransactions = [
@@ -37,8 +37,8 @@ const TransactionList = () => {
       <ListHeader>
         <HeaderItem>Date</HeaderItem>
         <HeaderItem>Description</HeaderItem>
-        <HeaderItem align="center">Amount</HeaderItem>
-        <HeaderItem align="center">Balance</HeaderItem>
+        <HeaderItem $align="center">Amount</HeaderItem>
+        <HeaderItem $align="center">Balance</HeaderItem>
         <HeaderItem></HeaderItem>
       </ListHeader>
       {transactions.map(transaction => (

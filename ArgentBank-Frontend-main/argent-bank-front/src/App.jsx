@@ -1,5 +1,5 @@
 import React, { useEffect } from 'react';
-import { useDispatch } from 'react-redux';
+import { useDispatch, useSelector} from 'react-redux';
 import { checkAuth } from './features/auth/authSlice';
 import { BrowserRouter as Router, Route, Routes } from 'react-router-dom';
 import Header from './components/Header';
@@ -7,6 +7,7 @@ import Footer from './components/Footer';
 import Home from './pages/Home';
 import Login from './pages/Login';
 import Profile from './pages/Profile';
+import NotFound from './pages/NotFound';
 import TransactionsPage from './pages/TransactionsPage';
 import PrivateRoute from './components/PrivateRoute';
 import styled from 'styled-components';
@@ -27,11 +28,12 @@ const MainContent = styled.main`
 `;
 
 function App() {
+  const { token } = useSelector((state) => state.auth);
   const dispatch = useDispatch();
 
   useEffect(() => {
-    dispatch(checkAuth());
-  }, [dispatch]);
+    dispatch(checkAuth(token));
+  }, [dispatch,token]);
   
   return (
     <Router>
@@ -46,6 +48,7 @@ function App() {
               <Route path="/profile" element={<Profile />} />
               <Route path="/transactions/:accountId" element={<TransactionsPage />} />
             </Route>
+            <Route path="*" element={<NotFound />} />
           </Routes>
         </MainContent>
         <Footer />

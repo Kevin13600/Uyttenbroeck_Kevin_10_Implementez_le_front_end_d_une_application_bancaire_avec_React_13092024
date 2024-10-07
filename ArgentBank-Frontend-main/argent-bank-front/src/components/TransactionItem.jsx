@@ -1,7 +1,7 @@
-import React, { useState } from 'react';
-import styled from 'styled-components';
-import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faChevronDown, faChevronUp } from '@fortawesome/free-solid-svg-icons';
+import React, { useState } from "react";
+import styled from "styled-components";
+import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
+import { faChevronDown, faChevronUp, faPen } from "@fortawesome/free-solid-svg-icons";
 
 const ItemContainer = styled.div`
   display: grid;
@@ -14,7 +14,7 @@ const ItemContainer = styled.div`
 `;
 
 const ItemColumn = styled.span`
-  text-align: ${props => props.align || 'left'};
+  text-align: ${(props) => props.$align || "left"};
 `;
 
 const ExpandButton = styled.button`
@@ -41,20 +41,21 @@ const DetailRow = styled.div`
 const EditableField = styled.div`
   display: flex;
   align-items: center;
+  gap: 10px;
 `;
 
 const TransactionItem = ({ transaction }) => {
   const [isExpanded, setIsExpanded] = useState(false);
-  const [category, setCategory] = useState('Food');
-  const [note, setNote] = useState('');
+  const [category, setCategory] = useState("Food");
+  const [note, setNote] = useState("");
 
   return (
     <>
       <ItemContainer>
         <ItemColumn>{transaction.date}</ItemColumn>
         <ItemColumn>{transaction.description}</ItemColumn>
-        <ItemColumn align="center">{transaction.amount}</ItemColumn>
-        <ItemColumn align="center">{transaction.balance}</ItemColumn>
+        <ItemColumn $align="center">{transaction.amount}</ItemColumn>
+        <ItemColumn $align="center">{transaction.balance}</ItemColumn>
         <ExpandButton onClick={() => setIsExpanded(!isExpanded)}>
           <FontAwesomeIcon icon={isExpanded ? faChevronUp : faChevronDown} />
         </ExpandButton>
@@ -73,19 +74,14 @@ const TransactionItem = ({ transaction }) => {
                 <option value="Transport">Transport</option>
                 <option value="Entertainment">Entertainment</option>
               </select>
-              <FontAwesomeIcon icon="pencil-alt" />
+              <FontAwesomeIcon icon={faPen} />
             </EditableField>
           </DetailRow>
           <DetailRow>
             <span>Note:</span>
             <EditableField>
-              <input
-                type="text"
-                value={note}
-                onChange={(e) => setNote(e.target.value)}
-                placeholder="Add a note"
-              />
-              <FontAwesomeIcon icon="pencil-alt" />
+              <input type="text" value={note} onChange={(e) => setNote(e.target.value)} placeholder="Add a note" />
+              <FontAwesomeIcon icon={faPen} />
             </EditableField>
           </DetailRow>
         </DetailsContainer>
