@@ -10,31 +10,34 @@ const initialState = {
 };
 
 export const login = createAsyncThunk(
-    'auth/login',
-    async (credentials, { rejectWithValue }) => {
-    try {
-      console.log('Sending login request with:', credentials);
-      const response = await axios.post(`${API_URL}/user/login`, credentials);
-      console.log('Login response:', response.data);
-      // Lors de la connexion, on stocke le jeton renvoyé par le backend dans le localStorage
-      if (response.data && response.data.body && response.data.body.token) {
+  'auth/login',
+  async (credentials, { rejectWithValue }) => {
+  try {
+    console.log('Sending login request with:', credentials);
+    const response = await axios.post(`${API_URL}/user/login`, credentials);
+    console.log('Login response:', response.data);
+    // Lors de la connexion, on stocke le jeton renvoyé par le backend dans le localStorage
+    if (response.data && response.data.body && response.data.body.token) {
+      if(credentials.rememberMe){
         localStorage.setItem('token', response.data.body.token);
         return response.data.body;
-      } else {
-        return rejectWithValue('Invalid response structure from server');
-      }
-    } catch (error) {
-      console.error('Login error:', error.response?.data || error.message);
-      return rejectWithValue(error.response?.data || 'An error occurred during login');
+      }        
+      return response.data.body;
+    } else {
+      return rejectWithValue('Invalid response structure from server');
     }
+  } catch (error) {
+    console.error('Login error:', error.response?.data || error.message);
+    return rejectWithValue(error.response?.data || 'An error occurred during login');
   }
+}
 );
 
 export const getUserProfile = createAsyncThunk(
   'auth/getUserProfile',
-  async (_, { rejectWithValue }) => {
+  async (_, { getState,rejectWithValue }) => {
     try {
-      const token = localStorage.getItem('token');
+      const token = getState().auth.token      
       console.log('Token used for profile request:', token);
 
       if (!token) {
@@ -67,21 +70,22 @@ export const getUserProfile = createAsyncThunk(
 l'application est initialisée */
 
 export const checkAuth = createAsyncThunk(
-    'auth/checkAuth',
-    async (_, { dispatch, rejectWithValue }) => {
-    const token = localStorage.getItem('token');
-    if (token) {
-      try {
-        await dispatch(getUserProfile());
-        return token;
-      } catch (error) {
-        //  Si la récupération du profil échoue, le jeton est supprimé du localStorage
-        localStorage.removeItem('token');
-        return rejectWithValue('Authentication failed');
-      }
+  'auth/checkAuth',
+  async (_, {getState, dispatch, rejectWithValue }) => {
+  // const token = localStorage.getItem('token');
+  const token = getState().auth.token
+  if (token) {
+    try {
+      await dispatch(getUserProfile());
+      return token;
+    } catch (error) {
+      //  Si la récupération du profil échoue, le jeton est supprimé du localStorage
+      localStorage.removeItem('token');
+      return rejectWithValue('Authentication failed');
     }
-    return rejectWithValue('No token found');
   }
+  return rejectWithValue('No token found');
+}
 );
 
 export const updateUserProfile = createAsyncThunk(
