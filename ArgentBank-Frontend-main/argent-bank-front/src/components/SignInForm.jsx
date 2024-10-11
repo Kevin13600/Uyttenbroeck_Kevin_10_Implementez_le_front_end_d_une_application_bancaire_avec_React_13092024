@@ -76,7 +76,7 @@ function SignInForm() {
     e.preventDefault();
     console.log('Attempting login with:', { email: username, password, rememberMe });
     
-    dispatch(clearError());
+    dispatch(clearError()); // Cette action permet de réinitialiser l'état des erreurs dans le store Redux avant de lancer une nouvelle tentative de connexion.
     const result = await dispatch(login({ email: username, password, rememberMe }));
     
     console.log('Login result:', result);
